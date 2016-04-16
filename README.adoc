@@ -4,13 +4,13 @@ A command-line utility that searches a (delimited) file for duplicate values in 
 
 For example, the pirate-words.csv file in the examples folder lists the word "mutiny" on line 12 and again on line 37. This utility will find that redundancy (among others).
 
-The pirate-words.csv file is a trivial example; however, this tool was designed to handle files with millions of records. The idea is that this tool is used as a first step towards further analysis in Excel, or whatever. Where Excel might choke on trying to process a 5-million record file, if that file is first filtered down to just a few hundred thousand records (the ones with the dups), then Excel can more easily process that.
+The pirate-words.csv file is a trivial example; however, this tool was designed to handle files with millions of records. The idea is that this tool is used as a first step towards further analysis (in Excel, or whatever). Where Excel might choke on trying to process a 5-million record file, directly, if that file is first filtered down to just a few hundred thousand records (the ones with the dups), then Excel can more easily process that.
 
 
 == Command-Line Flags
 
 .Command-Line Flags
-[width="100%",cols="1,8",options="header"]
+[width="100%",cols="2,5,5",options="header"]
 |===
 | Flag | Argument | Meaning
 | `-f `| name of the input file(s) | May include wildcards.
@@ -22,14 +22,14 @@ The pirate-words.csv file is a trivial example; however, this tool was designed 
 | `--help` | | Get help on these flag definitions.
 |===
 
-If multiple files are specified (via wildcards), the results will be combined in a single output file. So, be sure to specify PrependFileName=Y in the INI file (see below). Otherwise, it will be hard to backtrack where the duplicates were found. Also, note that the search for duplicates does not span input files. If the same key value occurs in two different files, it is not considered a duplication. Only if the key value is repeated within the same files is it considered a duplication.
+If multiple files are specified (via wildcards), the results will be combined in a single output file. So, be sure to specify `PrependFileName=Y` in the INI file (see below). Otherwise, it will be hard to backtrack where the duplicates were found. Also, note that the search for duplicates does not span input files. If the same key value occurs in two different files, it is not considered a duplication. Only if the key value is repeated within the same files is it considered a duplication.
 
 Redirecting the console output to a log file (`>> some.log`) is functionally equivalent to using the `-l` flag.
 
 
 == Specification Files
 
-A simple INI file tells DupSeeker how to interpret the input file, controls how it does the dup-seeking, and controls how it reports the findings.
+A simple INI file tells DupSeeker how to interpret the input file. It also controls how the tool does the dup-seeking, and it controls how the findings are reported.
 
 	[File]
 	Type=csv
@@ -38,11 +38,11 @@ A simple INI file tells DupSeeker how to interpret the input file, controls how 
 	PrependFileName=Y
 	PrependLineNumber=Y
 
-	;[Include]
-	;3=word
+	[Include]
+	1=D
 
 	[Exclude]
-	3=name,phrase
+	4=name,title
 
 Lines that begin with a semicolon are ignored as comments.
 
@@ -53,7 +53,8 @@ The [File] section is required.
 * The Type=CSV entry is required. (Currently, DupSeeker only knows how to work with delimited files.)
 * The Delimiter is optional. For a tab-delimited file, use Delimiter=\t.
 * SearchColumn is required. Columns are numbered left to right starting with 1.
-* PrependLineNumber=Y tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first column).
+* PrependFileName=Y tells DupSeeker that whenever it copies a line from the input file to the output file, the name of the input file should be inserted at the beginning of the record (as a new first column).
+* PrependLineNumber=Y tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first or second column).
 
 === [Include] and [Exclude] sections
 
@@ -61,5 +62,5 @@ The [Include] and [Exclude] sections are optional.
 
 * For either section, set the column number to be considered equal to the value, or values, to be matched (comma separated).
 
-In our pirate-words.csv example, the third column classifies each entry as being either a "word", "phrase" or "name". Let's say that we only want DupSeeker to look for duplicates among the "word" entries. We can use an [Include] section that says to only include lines where column 3 equals "word". Alternately, we could use an [Exclude] section that says to exclude lines where column 3 equals either "phrase" or "name". That will accomplish the same thing, in this case.
+In our pirate-words.csv example, the fourth column classifies each entry as being either a "word", "phrase", "name", or "title". Let's say that we only want DupSeeker to look for duplicates among the "word" and "phrase" entries. We can use an [Include] section that says to only include lines where column 4 equals "word,phrase". Alternately, we could use an [Exclude] section that says to exclude lines where column 4 equals either "name" or "title". That will accomplish the same thing, in this case.
 
