@@ -4,7 +4,7 @@ using static GruntWurk.QuickLog;
 
 namespace GruntWurk {
     class Program {
-        const string APP_NAME = "DupSeeker";
+        public const string APP_NAME = "DupSeeker";
         public static Options options;
         private static IniFile spec;
         private static DupSeeker seeker;

@@ -32,7 +32,7 @@ namespace GruntWurk {
                 string folderPart = Path.GetDirectoryName(FilenameWithPossibleWildcards);
                 string filenamePart = Path.GetFileName(FilenameWithPossibleWildcards);
                 if (folderPart == "") {
-                    folderPart = "."; 
+                    folderPart = ".";
                 }
 
                 string[] fileEntries = Directory.GetFiles(folderPart, filenamePart);
@@ -48,6 +48,14 @@ namespace GruntWurk {
         private void ScanFile(string InputFilename) {
             int lineCount = 0;
             shortFilename = Path.GetFileName(InputFilename);
+            if (filenameContainsDate) {
+                DateTime dt = FileUtils.DateFromFileName(shortFilename);
+                if (dt > DateTime.MinValue) {
+                    fileDate = dt.ToString("MM/dd/YY");
+                } else {
+                    fileDate = "";
+                }
+            }
 
             Dictionary<string, int> keyValueOccurances = new Dictionary<string, int>();
             string keyValueToCompare;
@@ -153,7 +161,7 @@ namespace GruntWurk {
                             if (prependFileName) {
                                 outline += shortFilename + delimiterChar;
                             }
-                            if (filenameContainsDate) {
+                            if (filenameContainsDate && fileDate != "") {
                                 outline += fileDate + delimiterChar;
                             }
                             if (prependLineNumber) {
@@ -201,21 +209,24 @@ namespace GruntWurk {
 
         private void LoadControlSpecifications(IniFile spec) {
             fileType = spec.GetString("File", "Type", "").ToUpper();
-            if (fileType != "CSV") {
-                throw new FileLoadException("DupSeeker currently only works with CSV files. Spec file must positively specify Type=CSV in the [File] section.");
+            if (fileType == "CSV") {
+                delimiterChar = ",";
+            } else if (fileType == "TSV") {
+                delimiterChar = "\t";
+            } else {
+                throw new FileLoadException(Program.APP_NAME + " currently only works with CSV and TSV files. Spec file must positively specify Type=CSV in the [File] section.");
             }
-            filenameContainsDate = spec.GetBool("File", "FilenameContainsDate", false);
+            delimiterChar = spec.GetString("File", "Delimiter", delimiterChar).ToUpper();
+            if (delimiterChar == "TAB" || delimiterChar == "\\T") {
+                delimiterChar = "\t";
+            }
+
             prependFileName = spec.GetBool("File", "PrependFileName", false);
             prependLineNumber = spec.GetBool("File", "PrependLineNumber", false);
-            delimiterChar = spec.GetString("File", "Delimiter", delimiterChar);
+
             searchColumn = spec.GetInt("File", "SearchColumn", 0);
             if (searchColumn < 1) {
                 throw new FileLoadException("Spec file must specify a SearchColumn number, in the [File] section.");
-            }
-            if (filenameContainsDate) {
-                // TODO Use the generalized routine for finding dates in filenames
-                fileDate = StringUtils.Right(shortFilename, 8);
-                fileDate = StringUtils.Mid(fileDate, 5, 2) + "/" + StringUtils.Mid(fileDate, 7, 2) + "/" + StringUtils.Left(fileDate, 4);
             }
         }
 
