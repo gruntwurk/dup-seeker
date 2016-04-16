@@ -1,0 +1,74 @@
+H,Code,Term,Type
+D,5,treasure,word
+D,6,scurvy,word
+D,13,peg-leg,word
+D,18,doubloon,word
+D,23,booty,word
+D,28,doubloon,word
+D,40,doubloon,word
+D,44,cannonball,word
+D,51,bilge,word
+D,54,doubloon,word
+D,72,mutiny,word
+D,76,cutlass,word
+D,78,privateer,word
+D,94,lubber,word
+D,95,doubloon,word
+D,107,doubloon,word
+D,119,irons,word
+D,130,gold,word
+D,133,prow,word
+D,162,captain,word
+D,163,crow's nest,phrase
+D,166,matey,word
+D,172,fog,word
+D,180,sword,word
+D,182,blunderbuss,word
+D,187,earring,word
+D,200,cask,word
+D,214,ahoy,word
+D,231,map,word
+D,235,swashbuckler,word
+D,240,plunder,word
+D,244,pressgang,word
+D,251,Jolly Roger,name
+D,255,chart,word
+D,259,grog,word
+D,266,mutiny,word
+D,273,doubloon,word
+D,274,flintlock,word
+D,276,doubloon,word
+D,292,Davy Jones,name
+D,303,ditty bag,word
+D,304,scuttle,word
+D,306,Treasure Island,title
+D,315,grog,word
+D,316,hardtack,word
+D,317,flintlock,word
+D,318,gunpowder,word
+D,319,treasure,word
+D,327,piracy,word
+D,335,pieces of eight,phrase
+D,338,belaying pin,phrase
+D,348,barnacle,word
+D,350,captain,word
+D,355,doubloon,word
+D,357,The Goonies,title
+D,387,furl,word
+D,389,captain,word
+D,396,pirate,word
+D,398,avast,word
+D,411,cannon,word
+D,413,doubloon,word
+D,414,Cutthroat Island,title
+D,428,captain,word
+D,431,broadside,word
+D,433,captain,word
+D,444,treasure,word
+D,446,corsair,word
+D,458,treasure,word
+D,467,buccaneer,word
+D,472,bandoleer,word
+D,478,Blackbeard,name
+D,488,scuttle,word
+T,72
