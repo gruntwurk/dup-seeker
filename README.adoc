@@ -13,13 +13,13 @@ The pirate-words.csv file is a trivial example; however, this tool was designed 
 [width="100%",cols="2,5,5",options="header"]
 |===
 | Flag | Argument | Meaning
-| `-f `| name of the input file(s) | May include wildcards.
-| `-o` | name of the output file to hold copies of all duplicated records found | If not given, then assumes the same as the input file but with a .OUT extension. Will be overwritten if already exists.
-| `--verbose` | | Displays detailed information (statistics).
-| `--debug` | | Displays how the specification file was interpreted, among other things.
-| `-l` | name of a log file to use | Will be appended to the end if already exists.
-| `-s` | name of the specification file | If not given, then assumes the same as the input file but with a .INI extension.
-| `--help` | | Get help on these flag definitions.
+| -f | name of the input file(s) | May include wildcards.
+| -o | name of the output file to hold copies of all duplicated records found | If not given, then assumes the same as the input file but with a .OUT extension. Will be overwritten if already exists.
+| --verbose | | Displays detailed information (statistics).
+| --debug | | Displays how the specification file was interpreted, among other things.
+| -l | name of a log file to use | Will be appended to the end if already exists.
+| -s | name of the specification file | If not given, then assumes the same as the input file but with a .INI extension.
+| --help | | Get help on these flag definitions.
 |===
 
 If multiple files are specified (via wildcards), the results will be combined in a single output file. So, be sure to specify `PrependFileName=Y` in the INI file (see below). Otherwise, it will be hard to backtrack where the duplicates were found. Also, note that the search for duplicates does not span input files. If the same key value occurs in two different files, it is not considered a duplication. Only if the key value is repeated within the same files is it considered a duplication.
@@ -50,11 +50,18 @@ Lines that begin with a semicolon are ignored as comments.
 
 The [File] section is required.
 
-* The Type=CSV entry is required. (Currently, DupSeeker only knows how to work with delimited files.)
-* The Delimiter is optional. For a tab-delimited file, use Delimiter=\t.
-* SearchColumn is required. Columns are numbered left to right starting with 1.
-* PrependFileName=Y tells DupSeeker that whenever it copies a line from the input file to the output file, the name of the input file should be inserted at the beginning of the record (as a new first column).
-* PrependLineNumber=Y tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first or second column).
+.File Section Keywords
+[width="100%",cols="2,3,2,8",options="header"]
+|===
+| Keyword | Possible Values | Required? | Description
+| Type | CSV or TSV | required | Currently, DupSeeker only knows how to work with delimited files, so this must be set to `CSV` or `TSV`.
+| Delimiter | Any one character or the word TAB (or \T) | optional | The delimiter that separates fields in the input file (and also used to prepend data to the output records). The default is comma (if the type is CSV), or tab (if the type is TSV).
+| SearchColumn | A number | required | Columns are numbered left to right starting with 1.
+| PrependFileName | Y/N | optional | Tells DupSeeker that whenever it copies a line from the input file to the output file, the name of the input file should be inserted at the beginning of the record (as a new first column).
+| PrependLineNumber | Y/N | optional | Tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first or second column).
+|===
+
+Other tools in the GruntWurk suite also use INI files for specifications. One purpose of requiring the Type=CSV/TSV line here is to ensure that if an INI file meant for one tool is accidentally sent to another tool, it will stop short as soon as it sees the wrong file type.
 
 === [Include] and [Exclude] sections
 
