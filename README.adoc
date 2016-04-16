@@ -64,3 +64,6 @@ The [Include] and [Exclude] sections are optional.
 
 In our pirate-words.csv example, the fourth column classifies each entry as being either a "word", "phrase", "name", or "title". Let's say that we only want DupSeeker to look for duplicates among the "word" and "phrase" entries. We can use an [Include] section that says to only include lines where column 4 equals "word,phrase". Alternately, we could use an [Exclude] section that says to exclude lines where column 4 equals either "name" or "title". That will accomplish the same thing, in this case.
 
+== See Also
+
+include::DEVELOPER_NOTES.adoc[]
