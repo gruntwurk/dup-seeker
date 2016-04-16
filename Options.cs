@@ -2,10 +2,8 @@
 using CommandLine;
 using System;
 
-namespace GruntWurk
-{
-    class Options : CommonOptions
-    {
+namespace GruntWurk {
+    class Options : CommonOptions {
         [Option('f', "file", Required = true, HelpText = "Input file(s) to be scanned. May include wildcards. If no path is given, then the current directory is assumed.")]
         public string InputFilepath { get; set; }
 
@@ -18,19 +16,15 @@ namespace GruntWurk
         [Option('l', "logfile", Required = false, HelpText = "Name of a log file to be appended to.")]
         public string LogFilename { get; set; }
 
-        public void Validate()
-        {
-            if (SpecFilename == null)
-            {
+        public void Validate() {
+            if (SpecFilename == null) {
                 SpecFilename = Path.ChangeExtension(InputFilepath, "INI");
             }
-            if (OutputFilename == null)
-            {
+            if (OutputFilename == null) {
                 OutputFilename = Path.ChangeExtension(InputFilepath, "OUT");
             }
         }
-        public override string ToString()
-        {
+        public override string ToString() {
             return string.Format("Input Pathname: {0}\nOutput Filename: {1}\nSpec Filename: {2}\nLog Filename: {3}", InputFilepath, OutputFilename, SpecFilename, LogFilename);
         }
     }
