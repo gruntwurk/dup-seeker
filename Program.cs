@@ -1,29 +1,34 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using static GruntWurk.QuickLog;
 
 namespace GruntWurk {
     class Program {
+        const string APP_NAME = "DupSeeker";
         public static Options options;
+        private static IniFile spec;
         private static DupSeeker seeker;
 
         static void Main(string[] args) {
-            using (seeker = new DupSeeker())
-            {
-                if (LoadCommandLineOptions(args))
-                {
-                    LoadSpecfication(ref seeker.spec);
-
-                    timestamp("DupSeeker Started");
-                    seeker.ScanAllSpecifiedFiles(options.InputFilepath);
-                    timestamp("DupSeeker Done");
+            try {
+                bool keepGoing = LoadCommandLineOptions(args);
+                if (keepGoing) {
+                    spec = LoadSpecfication(options.SpecFilename);
+                    using (seeker = new DupSeeker(spec)) {
+                        timestamp(APP_NAME + " Started");
+                        seeker.ScanAllSpecifiedFiles(options.InputFilepath);
+                        timestamp(APP_NAME + " Done");
+                    }
                 }
+            } catch (Exception ex) {
+                log("ERROR: {0}", ex.Message);
             }
         }
 
         /// <summary>
-        /// Parse the command-line options.
+        /// Parse the command-line options directly into the "options" field of this object.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">The command line arguments that were passed in from the operating system.</param>
         /// <returns>True if the program should proceed; otherwise, False if the user merely asked for a help screen.</returns>
         private static bool LoadCommandLineOptions(string[] args) {
             options = new Options();
@@ -42,17 +47,21 @@ namespace GruntWurk {
             return proceed;
         }
 
-        private static void LoadSpecfication(ref IniFile spec) {
-            if (!File.Exists(options.SpecFilename)) {
-                throw new FileNotFoundException("ERROR: Spec file does not exist.", options.SpecFilename);
+        /// <summary>
+        /// Open the named file and load it into an IniFile object.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>An IniFile object</returns>
+        private static IniFile LoadSpecfication(string filename) {
+            if (!File.Exists(filename)) {
+                throw new FileNotFoundException("Spec file does not exist.", filename);
             }
-            spec = new IniFile();
-            spec.LoadFile(options.SpecFilename);
+            IniFile spec = new IniFile();
+            spec.LoadFile(filename);
             if (DebugEnabled) {
                 spec.Dump();
             }
+            return spec;
         }
-
-
     }
 }
