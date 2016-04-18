@@ -5,28 +5,19 @@ using static GruntWurk.QuickLog;
 
 namespace GruntWurk {
     class DupSeeker : IDisposable {
-        // The "controls" (as specified in the INI file)
-        string fileType;
-        int searchColumn = 0;
-        string delimiterChar = ",";
-        bool filenameContainsDate;
-        bool prependFileName;
-        bool prependLineNumber;
-        List<ConditionSpec> inclusions = new List<ConditionSpec>();
-        List<ConditionSpec> exclusions = new List<ConditionSpec>();
-
-        // Other working fields
+        ProcessingControls controls;
         StreamWriter outputFile;
         string shortFilename;
         string fileDate = "";
 
         public DupSeeker(IniFile spec) {
-            // Load the various specifications from the INI file into this object's fields
-            LoadControlSpecifications(spec);
-            LoadConditionSpecifications(inclusions, spec, "INCLUDE");
-            LoadConditionSpecifications(exclusions, spec, "EXCLUDE");
+            controls = new ProcessingControls(spec);
         }
 
+        /// <summary>
+        /// Call this method to execute the dup-seeking logic.
+        /// </summary>
+        /// <param name="FilenameWithPossibleWildcards">The (qualified) file name of the input file. May contain wildcards.</param>
         public void ScanAllSpecifiedFiles(string FilenameWithPossibleWildcards) {
             using (outputFile = new StreamWriter(Program.options.OutputFilename)) {
                 string folderPart = Path.GetDirectoryName(FilenameWithPossibleWildcards);
@@ -45,10 +36,12 @@ namespace GruntWurk {
             }
         }
 
+        // TODO Although this method is long, it's pretty straight-forward. Still, we might consider breaking it up into smaller methods.
+        // (If, for no other reason, than to support adding unit tests around each extracted sub-method.)
         private void ScanFile(string InputFilename) {
             int lineCount = 0;
             shortFilename = Path.GetFileName(InputFilename);
-            if (filenameContainsDate) {
+            if (controls.filenameContainsDate) {
                 DateTime dt = FileUtils.DateFromFileName(shortFilename);
                 if (dt > DateTime.MinValue) {
                     fileDate = dt.ToString("MM/dd/YY");
@@ -66,20 +59,18 @@ namespace GruntWurk {
             int excludedCount = 0;
             int processedCount = 0;
 
-
-
             if (DebugEnabled) {
-                debug("Number of inclusions = {0}", inclusions.Count);
-                foreach (ConditionSpec cond in inclusions) {
+                debug("Number of inclusions = {0}", controls.inclusions.Count);
+                foreach (ConditionSpec cond in controls.inclusions) {
                     debug("    {0} = {1}", cond.col, cond.condition);
                 }
-                debug("Number of exclusions = {0}", exclusions.Count);
-                foreach (ConditionSpec cond in exclusions) {
+                debug("Number of exclusions = {0}", controls.exclusions.Count);
+                foreach (ConditionSpec cond in controls.exclusions) {
                     debug("    {0} = {1}", cond.col, cond.condition);
                 }
             }
 
-            if (filenameContainsDate) {
+            if (controls.filenameContainsDate) {
                 info("Processing {0} ({1})...", InputFilename, fileDate);
             } else {
                 info("Processing {0}...", InputFilename);
@@ -95,17 +86,17 @@ namespace GruntWurk {
                     try {
                         currentRow = CsvReader.ReadFields();
                         lineCount++;
-                        if (inclusions.Count > 0 && !conditionMatchesAny(inclusions, currentRow)) {
+                        if (controls.inclusions.Count > 0 && !conditionMatchesAny(controls.inclusions, currentRow)) {
                             missedInclusionCount++;
                             continue;
                         }
-                        if (exclusions.Count > 0 && conditionMatchesAny(exclusions, currentRow)) {
+                        if (controls.exclusions.Count > 0 && conditionMatchesAny(controls.exclusions, currentRow)) {
                             excludedCount++;
                             continue;
                         }
 
                         processedCount++;
-                        keyValueToCompare = currentRow[searchColumn - 1];
+                        keyValueToCompare = currentRow[controls.searchColumn - 1];
                         if (keyValueOccurances.ContainsKey(keyValueToCompare)) {
                             keyValueOccurances[keyValueToCompare]++;
                         } else {
@@ -138,7 +129,7 @@ namespace GruntWurk {
             using (CsvReader) {
                 String outline;
                 CsvReader.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
-                CsvReader.Delimiters = new string[] { delimiterChar };
+                CsvReader.Delimiters = new string[] { controls.delimiterChar };
                 lineCount = 0;
                 excludedCount = 0;
                 missedInclusionCount = 0;
@@ -147,27 +138,27 @@ namespace GruntWurk {
                     try {
                         currentRow = CsvReader.ReadFields();
                         lineCount++;
-                        if (inclusions.Count > 0 && !conditionMatchesAny(inclusions, currentRow)) {
+                        if (controls.inclusions.Count > 0 && !conditionMatchesAny(controls.inclusions, currentRow)) {
                             missedInclusionCount++;
                             continue;
                         }
-                        if (exclusions.Count > 0 && conditionMatchesAny(exclusions, currentRow)) {
+                        if (controls.exclusions.Count > 0 && conditionMatchesAny(controls.exclusions, currentRow)) {
                             excludedCount++;
                             continue;
                         }
                         processedCount++;
-                        if (keyValueOccurances[currentRow[searchColumn - 1]] > 1) {
+                        if (keyValueOccurances[currentRow[controls.searchColumn - 1]] > 1) {
                             outline = "";
-                            if (prependFileName) {
-                                outline += shortFilename + delimiterChar;
+                            if (controls.prependFileName) {
+                                outline += shortFilename + controls.delimiterChar;
                             }
-                            if (filenameContainsDate && fileDate != "") {
-                                outline += fileDate + delimiterChar;
+                            if (controls.filenameContainsDate && fileDate != "") {
+                                outline += fileDate + controls.delimiterChar;
                             }
-                            if (prependLineNumber) {
-                                outline += lineCount.ToString() + delimiterChar;
+                            if (controls.prependLineNumber) {
+                                outline += lineCount.ToString() + controls.delimiterChar;
                             }
-                            outline += string.Join(delimiterChar, currentRow);
+                            outline += string.Join(controls.delimiterChar, currentRow);
                             outputFile.WriteLine(outline);
                             outlineCount++;
                         }
@@ -207,42 +198,6 @@ namespace GruntWurk {
             return numberOfKeysWithDups;
         }
 
-        private void LoadControlSpecifications(IniFile spec) {
-            fileType = spec.GetString("File", "Type", "").ToUpper();
-            if (fileType == "CSV") {
-                delimiterChar = ",";
-            } else if (fileType == "TSV") {
-                delimiterChar = "\t";
-            } else {
-                throw new FileLoadException(Program.APP_NAME + " currently only works with CSV and TSV files. Spec file must positively specify Type=CSV in the [File] section.");
-            }
-            delimiterChar = spec.GetString("File", "Delimiter", delimiterChar).ToUpper();
-            if (delimiterChar == "TAB" || delimiterChar == "\\T") {
-                delimiterChar = "\t";
-            }
-
-            prependFileName = spec.GetBool("File", "PrependFileName", false);
-            prependLineNumber = spec.GetBool("File", "PrependLineNumber", false);
-
-            searchColumn = spec.GetInt("File", "SearchColumn", 0);
-            if (searchColumn < 1) {
-                throw new FileLoadException("Spec file must specify a SearchColumn number, in the [File] section.");
-            }
-        }
-
-        private void LoadConditionSpecifications(List<ConditionSpec> conditionList, IniFile spec, string SectionName) {
-            if (spec.Sections.ContainsKey(SectionName)) {
-                foreach (string columnId in spec.Sections[SectionName].Keys) {
-                    string valueList = spec.GetString(SectionName, columnId, "");
-                    string[] values = valueList.Split(StringUtils.JUST_COMMA);
-                    foreach (string value in values) {
-                        ConditionSpec cond = new ConditionSpec(columnId, value.Trim());
-                        conditionList.Add(cond);
-                    }
-                }
-            }
-        }
-
         private bool conditionMatchesAny(List<ConditionSpec> conditions, string[] currentRow) {
             foreach (ConditionSpec cond in conditions) {
                 if (currentRow[cond.col - 1] == cond.condition) {
@@ -256,4 +211,5 @@ namespace GruntWurk {
             // Currently, nothing to do here
         }
     }
+
 }
