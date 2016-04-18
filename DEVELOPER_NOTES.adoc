@@ -1,17 +1,25 @@
 = Notes for Contributing Developers
 
-Before committing code, please remember to:
+== Debugging with Command-Line Flags
+
+For testing and debugging purposes, you can specify the command-line switches to pass into the program via the Debug section of the properties page of the project. Note: Those properties are saved in `project-name.csproj.user`, which is excluded from being committed to the GIT repository.
+
+To set the properties yourself, right-click the project, choose properties, and go to the Debug section. There is a box for "Command Arguments".
+
+== Commit Checklist
+
+Before committing code to any of the GruntWurk projects and submitting a pull request, please remember to:
 
 * Remove necessary Usings at the top.
-* Reformat the code (see below).
+* Reformat the code to the GruntWurk formatting standards (see below).
 * Delete unused code (do not just comment it out).
 * Try to ensure that commits are atomic (that is, if you are committing two changes that have nothing to do with each other, then commit them separately).
-* Use meaningful commit comments.
+* Use meaningful commit comments. When a reviewer reads a commit comment, there should then be no surprises when the reviewer looks at the actual changes.
 
-== Formatting Standards
+== GruntWurk Formatting Standards
 
 Be sure to take advantage of the automatic formatting in Visual Studio (Ctrl-K/Ctrl-F).
 
-IMPORTANT: The GruntWurk standard is to use Visual Studio's default settings EXCEPT that the default settings insert way too many extra line breaks. So, before reformatting any code, pull down the Tools menu, select Options... > Text Editor > C# > Formatting > New Lines, and uncheck every option under "New line options for braces" and "New line options for keywords".
+The GruntWurk standard is to use Visual Studio's default settings EXCEPT that the default settings insert way too many extra line breaks. So, before reformatting any code, pull down the Tools menu, select Options... > Text Editor > C# > Formatting > New Lines, and uncheck every option under "New line options for braces" and "New line options for keywords".
 
 Thanks.

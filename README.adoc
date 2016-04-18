@@ -74,3 +74,4 @@ In our pirate-words.csv example, the fourth column classifies each entry as bein
 == See Also
 
 include::DEVELOPER_NOTES.adoc[]
+include::../gruntwurk-core/DESIGN_PHILOSOPHY.adoc[]
