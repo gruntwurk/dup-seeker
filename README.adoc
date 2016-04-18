@@ -7,6 +7,18 @@ For example, the pirate-words.csv file in the examples folder lists the word "mu
 The pirate-words.csv file is a trivial example; however, this tool was designed to handle files with millions of records. The idea is that this tool is used as a first step towards further analysis (in Excel, or whatever). Where Excel might choke on trying to process a 5-million record file, directly, if that file is first filtered down to just a few hundred thousand records (the ones with the dups), then Excel can more easily process that.
 
 
+== Getting Started
+
+. Git Clone this project into an appropriate working folder (e.g. `C:\work\gruntwurk\dup-seeker`)
+. Git Clone the gruntwurk-core project into the same parent working folder (e.g. `C:\work\gruntwurk\gruntwurk-core`)
+. Open the DupSeeker solution (`C:\work\gruntwurk\dup-seeker\DupSeeker.sln`) in Visual Studio.
+. Build the project.
+. Open a Windows Explorer window and navigate to the `dup-seeker\examples` folder.
+. Double click on the words.bat file.
+. In the DOS command window that opens ups, scroll up and see the results of the `--help` execution, followed by the results of the regular execution.
+. See also the `words.out` and `words.log` files that are created.
+
+
 == Command-Line Flags
 
 .Command-Line Flags
@@ -71,7 +83,9 @@ The [Include] and [Exclude] sections are optional.
 
 In our pirate-words.csv example, the fourth column classifies each entry as being either a "word", "phrase", "name", or "title". Let's say that we only want DupSeeker to look for duplicates among the "word" and "phrase" entries. We can use an [Include] section that says to only include lines where column 4 equals "word,phrase". Alternately, we could use an [Exclude] section that says to exclude lines where column 4 equals either "name" or "title". That will accomplish the same thing, in this case.
 
+
 == See Also
 
 include::DEVELOPER_NOTES.adoc[]
-include::../gruntwurk-core/DESIGN_PHILOSOPHY.adoc[]
+
+https://github.com/gruntwurk/gruntwurk-core/blob/master/DESIGN_PHILOSOPHY.adoc
