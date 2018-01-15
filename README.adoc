@@ -2,9 +2,12 @@
 
 A command-line utility that searches a (delimited) file for duplicate values in a certain column, and then filters the information down to only those duplicated lines.
 
-For example, the pirate-words.csv file in the examples folder lists the word "mutiny" on line 12 and again on line 37. This utility will find that redundancy (among others).
+For example, the pirate-words.csv file in the examples folder lists the word "mutiny" on line 12 and again on line 37. 
+This utility will find that redundancy (among others).
 
-The pirate-words.csv file is a trivial example; however, this tool was designed to handle files with millions of records. The idea is that this tool is used as a first step towards further analysis (in Excel, or whatever). Where Excel might choke on trying to process a 5-million record file, directly, if that file is first filtered down to just a few hundred thousand records (the ones with the dups), then Excel can more easily process that.
+The pirate-words.csv file is a trivial example; however, this tool was designed to handle files with millions of records. 
+The idea is that this tool is used as a first step towards further analysis (in Excel, or whatever). 
+Where Excel might choke on trying to process a 5-million record file, directly, if that file is first filtered down to just a few hundred thousand records (the ones with the dups), then Excel can more easily process that.
 
 
 == Getting Started
@@ -24,24 +27,30 @@ The pirate-words.csv file is a trivial example; however, this tool was designed 
 .Command-Line Flags
 [width="100%",cols="2,5,5",options="header"]
 |===
-| Flag | Argument | Meaning
-| -f | name of the input file(s) | May include wildcards.
-| -o | name of the output file to hold copies of all duplicated records found | If not given, then assumes the same as the input file but with a .OUT extension. Will be overwritten if already exists.
-| --verbose | | Displays detailed information (statistics).
-| --debug | | Displays how the specification file was interpreted, among other things.
-| -l | name of a log file to use | Will be appended to the end if already exists.
-| -s | name of the specification file | If not given, then assumes the same as the input file but with a .INI extension.
-| --help | | Get help on these flag definitions.
+| Flag      | Argument                       | Meaning
+| -f        | name of the input file(s)      | May include wildcards.
+| -o        | name of the output file to hold copies of all duplicated records found | If not given, then assumes the same as the input file but with a .OUT extension. Will be overwritten if already exists.
+| --verbose |                                | Displays detailed information (statistics).
+| --debug   |                                | Displays how the specification file was interpreted, among other things.
+| -l        | name of a log file to use      | Will be appended to the end if already exists.
+| -s        | name of the specification file | If not given, then assumes the same as the input file but with a .INI extension.
+| --help    |                                | Get help on these flag definitions.
 |===
 
-If multiple files are specified (via wildcards), the results will be combined in a single output file. So, be sure to specify `PrependFileName=Y` in the INI file (see below). Otherwise, it will be hard to backtrack where the duplicates were found. Also, note that the search for duplicates does not span input files. If the same key value occurs in two different files, it is not considered a duplication. Only if the key value is repeated within the same files is it considered a duplication.
+If multiple files are specified (via wildcards), the results will be combined in a single output file. 
+So, be sure to specify `PrependFileName=Y` in the INI file (see below). 
+Otherwise, it will be hard to backtrack where the duplicates were found. 
+Also, note that the search for duplicates does not span input files. 
+If the same key value occurs in two different files, it is not considered a duplication. 
+Only if the key value is repeated within the same file is it considered a duplication.
 
 Redirecting the console output to a log file (`>> some.log`) is functionally equivalent to using the `-l` flag.
 
 
 == Specification Files
 
-A simple INI file tells DupSeeker how to interpret the input file. It also controls how the tool does the dup-seeking, and it controls how the findings are reported.
+A simple INI file tells DupSeeker how to interpret the input file. 
+It also controls how the tool does the dup-seeking, and it controls how the findings are reported.
 
 	[File]
 	Type=csv
@@ -65,15 +74,16 @@ The [File] section is required.
 .File Section Keywords
 [width="100%",cols="2,3,2,8",options="header"]
 |===
-| Keyword | Possible Values | Required? | Description
-| Type | CSV or TSV | required | Currently, DupSeeker only knows how to work with delimited files, so this must be set to `CSV` or `TSV`.
-| Delimiter | Any one character or the word TAB (or \T) | optional | The delimiter that separates fields in the input file (and also used to prepend data to the output records). The default is comma (if the type is CSV), or tab (if the type is TSV).
-| SearchColumn | A number | required | Columns are numbered left to right starting with 1.
-| PrependFileName | Y/N | optional | Tells DupSeeker that whenever it copies a line from the input file to the output file, the name of the input file should be inserted at the beginning of the record (as a new first column).
-| PrependLineNumber | Y/N | optional | Tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first or second column).
+| Keyword           | Possible Values | Required? | Description
+| Type              | CSV or TSV      | required  | Currently, DupSeeker only knows how to work with delimited files, so this must be set to `CSV` or `TSV`.
+| Delimiter         | Any one character or the word TAB (or \T) | optional | The delimiter that separates fields in the input file (and also used to prepend data to the output records). The default is comma (if the type is CSV), or tab (if the type is TSV).
+| SearchColumn      | A number        | required  | Columns are numbered left to right starting with 1.
+| PrependFileName   | Y/N             | optional  | Tells DupSeeker that whenever it copies a line from the input file to the output file, the name of the input file should be inserted at the beginning of the record (as a new first column).
+| PrependLineNumber | Y/N             | optional  | Tells DupSeeker that whenever it copies a line from the input file to the output file, the line number of the line (as it appears in the input file) should be inserted at the beginning of the record (as a new first or second column).
 |===
 
-Other tools in the GruntWurk suite also use INI files for specifications. One purpose of requiring the Type=CSV/TSV line here is to ensure that if an INI file meant for one tool is accidentally sent to another tool, it will stop short as soon as it sees the wrong file type.
+Other tools in the GruntWurk suite also use INI files for specifications. 
+One purpose of requiring the Type=CSV/TSV line here is to ensure that if an INI file meant for one tool is accidentally sent to another tool, it will stop short as soon as it sees the wrong file type.
 
 === [Include] and [Exclude] sections
 
@@ -81,7 +91,11 @@ The [Include] and [Exclude] sections are optional.
 
 * For either section, set the column number to be considered equal to the value, or values, to be matched (comma separated).
 
-In our pirate-words.csv example, the fourth column classifies each entry as being either a "word", "phrase", "name", or "title". Let's say that we only want DupSeeker to look for duplicates among the "word" and "phrase" entries. We can use an [Include] section that says to only include lines where column 4 equals "word,phrase". Alternately, we could use an [Exclude] section that says to exclude lines where column 4 equals either "name" or "title". That will accomplish the same thing, in this case.
+In our pirate-words.csv example, the fourth column classifies each entry as being either a "word", "phrase", "name", or "title". 
+Let's say that we only want DupSeeker to look for duplicates among the "word" and "phrase" entries. 
+We can use an [Include] section that says to only include lines where column 4 equals "word,phrase". 
+Alternately, we could use an [Exclude] section that says to exclude lines where column 4 equals either "name" or "title". 
+That will accomplish the same thing, in this case.
 
 
 == See Also
